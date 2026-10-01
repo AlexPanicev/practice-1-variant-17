@@ -15,10 +15,10 @@ class Result:
 class Shell:
     """Диалоговая оболочка первого этапа."""
 
-    def execute(self, line: str) -> Result:
+    def execute(self, line: str, comments: bool = False) -> Result:
         """Разобрать одну строку и вернуть результат команды."""
         try:
-            words = shlex.split(line)
+            words = shlex.split(line, comments=comments)
         except ValueError as error:
             return Result(f"Ошибка синтаксиса: {error}")
         if not words:

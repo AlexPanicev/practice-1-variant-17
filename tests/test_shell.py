@@ -32,6 +32,13 @@ class ShellTests(unittest.TestCase):
         self.assertTrue(self.shell.execute("exit").exit_requested)
         self.assertFalse(self.shell.execute("exit now").exit_requested)
 
+    def test_script_comment(self) -> None:
+        """Сохранить символ решетки в кавычках и убрать комментарий."""
+        self.assertEqual(
+            self.shell.execute('ls "a # b" # note', comments=True).output,
+            "ls: аргументы = ['a # b']",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
