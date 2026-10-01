@@ -1,0 +1,41 @@
+# Режимы ls: длинный вывод, скрытые имена, читаемый размер.
+ls /
+ls -l /
+ls -a /
+ls -h /
+ls -lah /
+ls -l -a -h /
+ls /.hidden.txt
+ls -lh /large.txt
+ls -- /large.txt
+ls -z /
+# Основные команды: текущий каталог, относительный и абсолютный путь.
+ls
+ls home
+ls /tmp /home
+tree /
+tree
+tree /home/student/projects/hello.txt
+cd /home/student
+ls
+ls "todo list.txt"
+wc "todo list.txt"
+wc -l "todo list.txt"
+wc -w "todo list.txt"
+wc -c "todo list.txt"
+wc -lw "todo list.txt"
+wc "todo list.txt" "todo list.txt"
+cd projects
+tree .
+wc hello.txt
+cd ..
+cd /
+cd
+cd /home /tmp
+tree /home /tmp
+wc
+wc -z /home/student/projects/hello.txt
+ls /missing
+cd /home/student/todo\ list.txt
+wc /home
+tree /missing

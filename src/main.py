@@ -14,7 +14,7 @@ class Emulator(tk.Tk):
     """Окно с историей диалога и строкой ввода."""
 
     def __init__(self, config: Config) -> None:
-        """Создать окно и загрузить конфигурацию сеанса."""
+        """Создать окно и применить параметры запуска."""
         super().__init__()
         self.user = getpass.getuser()
         self.host = socket.gethostname()
@@ -32,9 +32,16 @@ class Emulator(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.destroy)
         self.write(f"Параметр --vfs: {config.vfs or '(не задан)'}")
         self.write(f"Параметр --startup: {config.startup or '(не задан)'}")
+        self._load_vfs(config)
+        if config.startup:
+            self.after(0, lambda: self.run_startup(config.startup))
+
+    def _load_vfs(self, config: Config) -> None:
+        """Загрузить VFS и показать результат либо сообщение об ошибке."""
         if config.vfs:
             try:
                 self.vfs = VFS.load(config.vfs)
+                self.shell = Shell(self.vfs)
                 self.write("VFS загружена в память")
                 self.write(
                     "Корень VFS: "
@@ -42,8 +49,6 @@ class Emulator(tk.Tk):
                 )
             except ValueError as error:
                 self.write(str(error))
-        if config.startup:
-            self.after(0, lambda: self.run_startup(config.startup))
 
     def run_startup(self, path) -> None:
         """Показать команды скрипта и результаты в истории диалога."""
@@ -73,7 +78,7 @@ class Emulator(tk.Tk):
 
     def run_command(self, line: str, comments: bool = False) -> bool:
         """Выполнить команду и вернуть признак продолжения сеанса."""
-        self.write(f"{self.user}@{self.host}$ {line}")
+        self.write(f"{self.user}@{self.host}:{self.shell.cwd}$ {line}")
         result = self.shell.execute(line, comments=comments)
         if result.output:
             self.write(result.output)

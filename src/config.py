@@ -16,7 +16,10 @@ class Config:
 def parse_args() -> Config:
     """Прочитать параметры командной строки."""
     parser = argparse.ArgumentParser(description="Эмулятор shell, вариант 17")
-    parser.add_argument("--vfs", type=Path, help="путь к XML-файлу VFS")
+    parser.add_argument(
+        "--vfs", type=Path, default=Path("vfs/deep.xml"),
+        help="путь к XML-файлу VFS (по умолчанию vfs/deep.xml)"
+    )
     parser.add_argument(
         "--startup", type=Path, help="путь к стартовому скрипту"
     )

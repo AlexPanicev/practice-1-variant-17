@@ -4,6 +4,7 @@ import base64
 import binascii
 from xml.etree import ElementTree
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -15,13 +16,16 @@ class Node:
     is_dir: bool
     content: bytes = b""
     children: dict[str, "Node"] = field(default_factory=dict)
+    modified_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
 
 class VFS:
     """Дерево XML, операции над которым выполняются только в памяти."""
 
     def __init__(self, root: Node) -> None:
-        """Сохранить корневой объект виртуального дерева."""
+        """Сохранить корень независимого дерева в памяти."""
         self.root = root
 
     @classmethod
@@ -42,7 +46,7 @@ class VFS:
     @classmethod
     def _add_element(cls, parent: Node, element: ElementTree.Element) -> None:
         """Добавить XML-элемент в дерево после проверки имени и типа."""
-        name = cls._element_name(parent, element)
+        name = cls._validate_name(parent, element)
         if element.tag == "directory":
             node = Node(name, True)
             parent.children[name] = node
@@ -51,12 +55,12 @@ class VFS:
             return
         if element.tag != "file" or len(element):
             raise ValueError(f"VFS: недопустимый элемент: {element.tag}")
-        content = cls._file_content(element, name)
+        content = cls._decode_content(element)
         parent.children[name] = Node(name, False, content)
 
     @staticmethod
-    def _element_name(parent: Node, element: ElementTree.Element) -> str:
-        """Проверить имя элемента и отсутствие дубликата в каталоге."""
+    def _validate_name(parent: Node, element: ElementTree.Element) -> str:
+        """Отклонить пустое, некорректное или повторяющееся имя."""
         name = element.get("name", "")
         if not name or name in (".", "..") or "/" in name:
             raise ValueError(f"VFS: недопустимое имя: {name!r}")
@@ -65,8 +69,9 @@ class VFS:
         return name
 
     @staticmethod
-    def _file_content(element: ElementTree.Element, name: str) -> bytes:
-        """Декодировать содержимое файла с известной кодировкой."""
+    def _decode_content(element: ElementTree.Element) -> bytes:
+        """Прочитать текст или строго декодировать двоичные данные."""
+        name = element.get("name", "")
         encoding = element.get("encoding", "utf-8")
         raw = element.text or ""
         if encoding == "base64":
