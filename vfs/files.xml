@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vfs>
+  <file name="readme.txt">Hello world!
+Second line.
+</file>
+  <file name="logo.bin" encoding="base64">AAECA//+</file>
+  <directory name="docs">
+    <file name="notes.txt">One two three.
+</file>
+  </directory>
+</vfs>

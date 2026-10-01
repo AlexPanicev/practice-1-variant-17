@@ -1,0 +1,10 @@
+# Проверка разбора аргументов и ошибок при разных XML VFS.
+ls
+ls "имя с пробелами"
+ls /empty "имя с пробелами"
+cd /home/student
+cd
+cd /empty /missing
+exit now
+unknown
+ls "

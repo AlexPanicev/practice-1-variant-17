@@ -7,13 +7,14 @@ from tkinter import scrolledtext
 
 from src.config import Config, parse_args
 from src.shell import Shell
+from src.vfs import VFS
 
 
 class Emulator(tk.Tk):
     """Окно с историей диалога и строкой ввода."""
 
     def __init__(self, config: Config) -> None:
-        """Создать окно с историей диалога и строкой ввода."""
+        """Создать окно и загрузить конфигурацию сеанса."""
         super().__init__()
         self.user = getpass.getuser()
         self.host = socket.gethostname()
@@ -31,6 +32,16 @@ class Emulator(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.destroy)
         self.write(f"Параметр --vfs: {config.vfs or '(не задан)'}")
         self.write(f"Параметр --startup: {config.startup or '(не задан)'}")
+        if config.vfs:
+            try:
+                self.vfs = VFS.load(config.vfs)
+                self.write("VFS загружена в память")
+                self.write(
+                    "Корень VFS: "
+                    + ", ".join(sorted(self.vfs.root.children))
+                )
+            except ValueError as error:
+                self.write(str(error))
         if config.startup:
             self.after(0, lambda: self.run_startup(config.startup))
 

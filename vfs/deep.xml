@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vfs>
+  <directory name="home">
+    <directory name="student">
+      <directory name="projects">
+        <file name="hello.txt">Привет, мир!
+Вторая строка.
+</file>
+      </directory>
+      <file name="todo list.txt">Сдать практическую работу.
+</file>
+    </directory>
+  </directory>
+  <directory name="tmp" />
+</vfs>
