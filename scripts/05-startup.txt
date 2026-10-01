@@ -1,0 +1,50 @@
+# Режимы ls: длинный вывод, скрытые имена, читаемый размер.
+ls /
+ls -l /
+ls -a /
+ls -h /
+ls -lah /
+ls -l -a -h /
+ls /.hidden.txt
+ls -lh /large.txt
+ls -- /large.txt
+ls -z /
+# Полный сценарий варианта 17.
+ls /
+ls /tmp /home
+tree /home
+tree
+tree /home/student/projects/hello.txt
+cd /home/student/projects
+ls
+wc hello.txt
+wc -l hello.txt
+wc -w hello.txt
+wc -c hello.txt
+wc -lw hello.txt
+wc hello.txt hello.txt
+touch "новый файл.txt"
+touch first.txt second.txt
+ls
+wc "новый файл.txt"
+touch hello.txt
+touch /home /
+touch /home/
+tree .
+cd ..
+cd /
+cd
+cd /home /tmp
+tree /home /tmp
+wc
+wc -z /home/student/projects/hello.txt
+ls /missing
+cd /home/student/todo\ list.txt
+wc /home
+tree /missing
+touch /missing/new.txt
+touch
+touch /home/student/projects/hello.txt/new.txt
+touch /missing-directory/
+unknown
+ls "

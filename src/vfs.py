@@ -107,3 +107,20 @@ class VFS:
                 raise FileNotFoundError(absolute)
             node = node.children[part]
         return node
+
+    def touch(self, path: str, cwd: str = "/") -> None:
+        """Создать файл или обновить время объекта только в памяти."""
+        absolute = self.normalize(path, cwd)
+        if absolute == "/":
+            self.root.modified_at = datetime.now(timezone.utc)
+            return
+        parent_path, _, name = absolute.rpartition("/")
+        parent = self.get(parent_path or "/")
+        if not parent.is_dir:
+            raise NotADirectoryError(parent_path)
+        if name in parent.children:
+            parent.children[name].modified_at = datetime.now(timezone.utc)
+            return
+        if path.endswith("/"):
+            raise ValueError(f"не каталог: {path}")
+        parent.children[name] = Node(name, False)

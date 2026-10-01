@@ -1,14 +1,16 @@
 """Проверки диалога и разбора команд."""
 
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from src.shell import Shell
 from src.vfs import VFS
 
 
 class ShellTests(unittest.TestCase):
-    """Проверки разбора команд и возможностей четвёртого этапа."""
+    """Базовые сценарии первого этапа."""
 
     def setUp(self) -> None:
         """Создать независимый сеанс перед каждой проверкой."""
@@ -68,6 +70,27 @@ class ShellTests(unittest.TestCase):
             'cd "/home/student/todo list.txt"').output)
         self.assertIn("не файл", self.shell.execute("wc /home").output)
 
+    def test_touch_and_persistence(self) -> None:
+        """Создать пустой файл в памяти без изменения исходного XML."""
+        source = Path(__file__).resolve().parents[1] / "vfs/deep.xml"
+        original = source.read_bytes()
+        self.shell.execute("cd /home/student/projects")
+        self.assertEqual(self.shell.execute('touch "new file.txt"').output,
+                         "")
+        self.assertIn("new file.txt", self.shell.execute("ls").output)
+        self.assertEqual(self.shell.execute('wc "new file.txt"').output,
+                         "0 0 0 new file.txt")
+        self.assertEqual(source.read_bytes(), original)
+        fresh = VFS.load(source)
+        with self.assertRaises(FileNotFoundError):
+            fresh.get("/home/student/projects/new file.txt")
+
+    def test_touch_errors(self) -> None:
+        """Отклонить отсутствие аргумента и родительского каталога."""
+        self.assertIn("укажите", self.shell.execute("touch").output)
+        self.assertIn("missing", self.shell.execute(
+            "touch /missing/new.txt").output)
+
     def test_wc_modes_and_totals(self) -> None:
         """Проверить ключи wc и общий итог для нескольких файлов."""
         self.shell.execute("cd /home/student/projects")
@@ -98,6 +121,17 @@ class ShellTests(unittest.TestCase):
             "/home/student/projects/hello.txt\n0 каталогов, 1 файлов",
         )
 
+    def test_touch_updates_timestamp(self) -> None:
+        """Обновить время файла и каталогов без потери содержимого."""
+        expected = datetime(2026, 10, 8, tzinfo=timezone.utc)
+        path = "/home/student/projects/hello.txt"
+        original = self.shell.vfs.get(path).content
+        with patch("src.vfs.datetime") as clock:
+            clock.now.return_value = expected
+            self.shell.execute(f"touch {path} /home /")
+        for name in (path, "/home", "/"):
+            self.assertEqual(self.shell.vfs.get(name).modified_at, expected)
+        self.assertEqual(self.shell.vfs.get(path).content, original)
 
 
 if __name__ == "__main__":

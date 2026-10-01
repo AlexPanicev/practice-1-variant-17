@@ -41,6 +41,7 @@ class Shell:
             "cd": self._cd,
             "wc": self._wc,
             "tree": self._tree,
+            "touch": self._touch,
         }
         if command not in commands:
             return Result(f"{command}: команда не найдена")
@@ -140,3 +141,12 @@ class Shell:
             else:
                 files += 1
         return directories, files
+
+    def _touch(self, arguments: list[str]) -> str:
+        """Создать или обновить объекты VFS без записи в XML."""
+        assert self.vfs is not None
+        if not arguments:
+            raise ValueError("укажите хотя бы один путь")
+        for path in arguments:
+            self.vfs.touch(path, self.cwd)
+        return ""
